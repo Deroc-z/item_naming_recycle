@@ -1,0 +1,18 @@
+include MANIFEST.in
+include requirements.txt
+include *.json
+include *.md
+include *.py
+include *.txt
+recursive-include item_naming_recycle *.css
+recursive-include item_naming_recycle *.csv
+recursive-include item_naming_recycle *.html
+recursive-include item_naming_recycle *.ico
+recursive-include item_naming_recycle *.js
+recursive-include item_naming_recycle *.json
+recursive-include item_naming_recycle *.md
+recursive-include item_naming_recycle *.png
+recursive-include item_naming_recycle *.py
+recursive-include item_naming_recycle *.svg
+recursive-include item_naming_recycle *.txt
+recursive-exclude item_naming_recycle *.pyc
