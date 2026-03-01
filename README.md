@@ -14,7 +14,7 @@ A Frappe/ERPNext plugin that enables automatic recycling of item codes when item
 ## Installation
 
 ```bash
-bench get-app item_naming_recycle https://github.com/yourusername/item_naming_recycle.git
+bench get-app item_naming_recycle https://github.com/Deroc-z/item_naming_recycle.git
 bench --site your-site install-app item_naming_recycle
 bench migrate
 bench restart

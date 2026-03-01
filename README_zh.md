@@ -14,7 +14,7 @@
 ## 安装方法
 
 ```bash
-bench get-app item_naming_recycle https://github.com/yourusername/item_naming_recycle.git
+bench get-app item_naming_recycle https://github.com/Deroc-z/item_naming_recycle.git
 bench --site 你的站点名 install-app item_naming_recycle
 bench migrate
 bench restart
