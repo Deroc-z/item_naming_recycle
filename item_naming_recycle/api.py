@@ -1,41 +1,46 @@
 import frappe
+import re
+
+
+def split_code(name):
+    """Split item code into prefix and number, supporting both 'YL-00001' and 'YL00001' formats."""
+    m = re.match(r'^(.*?)(\d+)$', name)
+    if not m:
+        return None, None
+    prefix = m.group(1)
+    number_str = m.group(2)
+    if not prefix:
+        return None, None
+    return prefix, int(number_str)
 
 
 def recycle_item_code(doc, method):
     """Save deleted item code to the recycling pool."""
-    name = doc.name
-    last_dash = name.rfind('-')
-
-    if last_dash <= 0:
+    prefix, number = split_code(doc.name)
+    if prefix is None:
         return
-
-    number_part = name[last_dash + 1:]
-    if not number_part.isdigit():
-        return
-
-    prefix_part = name[:last_dash + 1]
-    number = int(number_part)
 
     recycled = frappe.new_doc('Recycled Item Code')
-    recycled.prefix = prefix_part
+    recycled.prefix = prefix
     recycled.number = number
-    recycled.item_code = name
+    recycled.item_code = doc.name
     recycled.insert(ignore_permissions=True)
 
     rule = frappe.db.get_value('Document Naming Rule',
-        {'document_type': 'Item', 'prefix': prefix_part, 'disabled': 0},
+        {'document_type': 'Item', 'prefix': prefix, 'disabled': 0},
         'name')
 
     if rule:
         last_item = frappe.db.sql("""
             SELECT name FROM `tabItem`
             WHERE name LIKE %s AND name != %s
-            ORDER BY CAST(SUBSTRING_INDEX(name, '-', -1) AS UNSIGNED) DESC
+            ORDER BY name DESC
             LIMIT 1
-        """, (prefix_part + '%', doc.name))
+        """, (prefix + '%', doc.name))
 
         if last_item:
-            max_number = int(last_item[0][0][last_item[0][0].rfind('-') + 1:])
+            _, max_number = split_code(last_item[0][0])
+            max_number = max_number or 0
         else:
             max_number = 0
 
@@ -45,18 +50,9 @@ def recycle_item_code(doc, method):
 
 def swap_recycled_code(doc, method):
     """After inserting an item, check the recycling pool for a smaller available code."""
-    name = doc.name
-    last_dash = name.rfind('-')
-
-    if last_dash <= 0:
+    prefix, current_number = split_code(doc.name)
+    if prefix is None:
         return
-
-    prefix = name[:last_dash + 1]
-    number_part = name[last_dash + 1:]
-    if not number_part.isdigit():
-        return
-
-    current_number = int(number_part)
 
     recycled = frappe.db.sql("""
         SELECT r.name, r.item_code FROM `tabRecycled Item Code` r
