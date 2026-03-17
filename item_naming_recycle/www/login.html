@@ -1,0 +1,208 @@
+{%- extends "templates/base.html" -%}
+
+{%- block head_include %}
+<meta name="robots" content="noindex">
+{{ include_style("login.bundle.css") }}
+<link rel="stylesheet" href="/assets/item_naming_recycle/css/custom_login.css">
+{%- endblock -%}
+
+{%- block navbar %}{% endblock -%}
+{%- block sidebar %}{% endblock -%}
+
+{%- block page_content %}
+<div class="login-wrapper">
+	<!-- Left: Brand Panel -->
+	<div class="login-brand-panel">
+		<div class="brand-content">
+			{% if logo %}
+			<img class="brand-logo" src="{{ logo }}" alt="{{ app_name or 'App' }}">
+			{% endif %}
+			<h1 class="brand-title">{{ app_name or "ERPNext" }}</h1>
+			<p class="brand-tagline">智能制造 · 高效管理</p>
+		</div>
+	</div>
+
+	<!-- Right: Login Form -->
+	<div class="login-form-panel">
+		<div class="login-form-container">
+			<div class="login-form-header">
+				<h2>欢迎回来</h2>
+				<p class="text-muted">请登录您的账户</p>
+			</div>
+
+			<div id="login_div" class="page-card">
+				<!-- Status Messages -->
+				<div id="login-status" class="login-status" style="display:none;"></div>
+
+				<!-- Email/Password Login -->
+				<form class="for-login">
+					{% if not disable_user_pass_login %}
+					<div class="form-group">
+						<label for="login_email">{{ login_label or "邮箱" }}</label>
+						<input id="login_email" type="text" name="usr"
+							placeholder="{{ login_label or '邮箱地址' }}"
+							class="form-control" autofocus>
+					</div>
+					<div class="form-group">
+						<label for="login_password">密码</label>
+						<input id="login_password" type="password" name="pwd"
+							placeholder="输入密码"
+							class="form-control">
+					</div>
+					<div class="form-actions">
+						<button type="submit" class="btn btn-primary btn-block btn-login">登录</button>
+					</div>
+					<div class="form-links">
+						<a class="forgot-link toggle-forgot">忘记密码？</a>
+						{% if not disable_signup %}
+						<span class="separator">·</span>
+						<a class="signup-link toggle-signup">注册新账户</a>
+						{% endif %}
+					</div>
+					{% endif %}
+
+					<!-- Social Logins -->
+					{% if provider_logins %}
+					<div class="social-login-divider">
+						<span>或通过以下方式登录</span>
+					</div>
+					<div class="social-logins">
+						{% for p in provider_logins %}
+						<a class="btn btn-social btn-block btn-{{ p.name|lower }}"
+							href="{{ p.auth_url }}">
+							<img src="{{ p.icon }}" alt="{{ p.provider_name }}">
+							{{ p.provider_name }}
+						</a>
+						{% endfor %}
+					</div>
+					{% endif %}
+
+					{% if login_with_email_link %}
+					<div class="email-link-section">
+						<a class="toggle-email-link">通过邮件链接登录</a>
+					</div>
+					{% endif %}
+				</form>
+
+				<!-- Forgot Password Form -->
+				<form class="for-forgot" style="display: none;">
+					<div class="form-group">
+						<label for="forgot_email">邮箱地址</label>
+						<input id="forgot_email" type="email" name="usr"
+							placeholder="输入注册邮箱"
+							class="form-control" autofocus>
+					</div>
+					<div class="form-actions">
+						<button type="submit" class="btn btn-primary btn-block">发送重置链接</button>
+					</div>
+					<div class="form-links">
+						<a class="toggle-login">返回登录</a>
+					</div>
+				</form>
+
+				<!-- Signup Form -->
+				{% if not disable_signup %}
+				<form class="for-signup" style="display: none;">
+					{% if signup_form_template %}
+						{% include signup_form_template %}
+					{% else %}
+					<div class="form-group">
+						<label for="signup_fullname">姓名</label>
+						<input id="signup_fullname" type="text" name="full_name"
+							placeholder="您的姓名"
+							class="form-control" autofocus>
+					</div>
+					<div class="form-group">
+						<label for="signup_email">邮箱</label>
+						<input id="signup_email" type="email" name="email"
+							placeholder="邮箱地址"
+							class="form-control">
+					</div>
+					<div class="form-actions">
+						<button type="submit" class="btn btn-primary btn-block">注册</button>
+					</div>
+					{% endif %}
+					<div class="form-links">
+						<a class="toggle-login">已有账户？返回登录</a>
+					</div>
+				</form>
+				{% endif %}
+
+				<!-- Email Link Login -->
+				<form class="for-email-link" style="display: none;">
+					<div class="form-group">
+						<label for="email_link_email">邮箱地址</label>
+						<input id="email_link_email" type="email" name="usr"
+							placeholder="输入邮箱地址"
+							class="form-control" autofocus>
+					</div>
+					<div class="form-actions">
+						<button type="submit" class="btn btn-primary btn-block">发送登录链接</button>
+					</div>
+					<div class="form-links">
+						<a class="toggle-login">返回登录</a>
+					</div>
+				</form>
+
+				<!-- OTP Verification -->
+				<div id="otp_div" style="display: none;">
+					<form class="for-otp">
+						<div class="form-group">
+							<label for="login_token">验证码</label>
+							<input id="login_token" type="text" name="otp"
+								placeholder="输入验证码"
+								class="form-control" autofocus autocomplete="one-time-code">
+						</div>
+						<div class="form-actions">
+							<button type="submit" class="btn btn-primary btn-block">验证</button>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- Splash screen after login -->
+{% include "templates/includes/splash_screen.html" %}
+{%- endblock -%}
+
+{%- block footer %}{% endblock -%}
+
+{% block script %}
+<script>{% include "templates/includes/login/login.js" %}</script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+	// Toggle between login/signup/forgot forms
+	document.querySelectorAll('.toggle-forgot').forEach(function(el) {
+		el.addEventListener('click', function() {
+			document.querySelector('.for-login').style.display = 'none';
+			document.querySelector('.for-forgot').style.display = 'block';
+		});
+	});
+	document.querySelectorAll('.toggle-signup').forEach(function(el) {
+		el.addEventListener('click', function() {
+			document.querySelector('.for-login').style.display = 'none';
+			var signup = document.querySelector('.for-signup');
+			if (signup) signup.style.display = 'block';
+		});
+	});
+	document.querySelectorAll('.toggle-login').forEach(function(el) {
+		el.addEventListener('click', function() {
+			document.querySelector('.for-login').style.display = 'block';
+			document.querySelector('.for-forgot').style.display = 'none';
+			var signup = document.querySelector('.for-signup');
+			if (signup) signup.style.display = 'none';
+			var emailLink = document.querySelector('.for-email-link');
+			if (emailLink) emailLink.style.display = 'none';
+		});
+	});
+	document.querySelectorAll('.toggle-email-link').forEach(function(el) {
+		el.addEventListener('click', function() {
+			document.querySelector('.for-login').style.display = 'none';
+			document.querySelector('.for-email-link').style.display = 'block';
+		});
+	});
+});
+</script>
+{% endblock %}

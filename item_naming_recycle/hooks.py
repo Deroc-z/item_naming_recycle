@@ -11,3 +11,8 @@ doc_events = {
         "after_insert": "item_naming_recycle.api.swap_recycled_code"
     }
 }
+
+# Custom login page assets
+website_context = {
+    "splash_image": "/assets/item_naming_recycle/images/logo.png",
+}
